@@ -79,8 +79,8 @@ async function startAnalysis() {
     resultBox.style.display = 'none';
 
     try {
-        // Стучимся прямо к серверному файлу в корне проекта
-        const response = await fetch('/analyze.js', {
+        // Стучимся на строго определённый адрес бэкенда Vercel
+        const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ poem: poem })
@@ -88,7 +88,7 @@ async function startAnalysis() {
 
         if (!response.ok) { 
             const errorData = await response.json();
-            throw new Error(errorData.details || "Näbelli säwlik"); 
+            throw new Error(errorData.error || "Näbelli säwlik"); 
         }
 
         const result = await response.json();
