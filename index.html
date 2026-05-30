@@ -79,14 +79,17 @@ async function startAnalysis() {
     resultBox.style.display = 'none';
 
     try {
-        // Запрос идет на наш собственный сервер Vercel, VPN пользователю НЕ НУЖЕН
-        const response = await fetch('/api/analyze', {
+        // Стучимся прямо к серверному файлу в корне проекта
+        const response = await fetch('/analyze.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ poem: poem })
         });
 
-        if (!response.ok) { throw new Error('Näsazlyk'); }
+        if (!response.ok) { 
+            const errorData = await response.json();
+            throw new Error(errorData.details || "Näbelli säwlik"); 
+        }
 
         const result = await response.json();
 
@@ -104,7 +107,7 @@ async function startAnalysis() {
         document.getElementById('analysisDetails').innerHTML = detailsHtml;
         resultBox.style.display = 'block';
     } catch (error) {
-        alert("Näsazlyk ýüze çykdy. Biraz wagtdan gaýtadan barlap görüň.");
+        alert("Näsazlyk ýüze çykdy: " + error.message);
     } finally {
         loader.style.display = 'none';
     }
