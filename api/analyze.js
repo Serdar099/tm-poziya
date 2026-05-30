@@ -1,7 +1,7 @@
-const fetch = require('node-fetch'); // Используем стандартный модуль для Node.js на Vercel
+const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
-    // Включаем CORS, чтобы фронтенд мог свободно общаться с сервером
+    // Настройка CORS заголовков
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,10 +22,10 @@ module.exports = async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY; 
         if (!apiKey) {
-            return res.status(500).json({ error: 'Серверная ошибка: Ключ не найден в настройках Vercel.' });
+            return res.status(500).json({ error: 'Klyuç Vercel-de tapylmady' });
         }
 
-        const fullPrompt = `Sen edebiýatçy alym, türkmen poeziýasynyň bilermeni. Berlen türkmençe goşgyny synergetik taýdan derňe we DIŇE JSON görnüşinde jogap ber. Markdown formatyny (\`\`\`json) ulanma, arassa obýekt gaýtar. Jogabyň dili professional edebi türkmen dili bolmaly. Struktura takyk şu görnüşde bolmaly: {"summary": "pelsepewi netije", "details": [{"phrase": "metofora", "analysis": "manysy"}]}`;
+        const fullPrompt = `Sen edebiýatçy alym, türkmen poeziýasynyň bilermeni. Berlen türkmençe goşgyny synergetik taýdan derňe we DIŇE JSON görnüşinde jogap ber. Markdown formatyny ulanma. Struktura takyk şu görnüşde bolmaly: {"summary": "pelsepewi netije", "details": [{"phrase": "metofora", "analysis": "manysy"}]}`;
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
@@ -33,25 +33,19 @@ module.exports = async (req, res) => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ 
-                    parts: [{ text: `${fullPrompt}\n\nGoşgy:\n${poem}` }] 
-                }],
-                generationConfig: { 
-                    responseMimeType: "application/json", 
-                    temperature: 0.3 
-                }
+                contents: [{ parts: [{ text: `${fullPrompt}\n\nGoşgy:\n${poem}` }] }],
+                generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
             })
         });
 
         if (!googleResponse.ok) {
             const errText = await googleResponse.text();
-            return res.status(500).json({ error: 'Google API şowsuz boldy', details: errText });
+            return res.status(500).json({ error: 'Google şowsuz boldy', details: errText });
         }
 
         const data = await googleResponse.json();
         const rawJsonText = data.candidates[0].content.parts[0].text;
         
-        // Отдаем готовый результат фронтенду
         return res.status(200).json(JSON.parse(rawJsonText));
 
     } catch (error) {
